@@ -356,6 +356,31 @@ sub ref!RenderPassObject createRenderPassObjectFromInfo(
   return renderPass
 }
 
+
+//sub ref!AttachmentDescription createAtachmentDescriptionObject(const VkAttachmentDescription *attachment) {
+//
+//}
+
+//sub ref!SubpassDescription createSubpassDescriptionObject(const VkSubpassDescription *subpassDescription) {
+//
+//}
+
+//sub ref!SubpassDependency createSubpassDependencyObject(const VkSubpassDependency *subpassDependency) {
+//
+//}
+
+
+// Should this return a reference or a real object?  Originally, real objects were created
+sub AttachmentReference createAttachmentReferenceObject(VkAttachmentReference2 attachmentReference2) {
+   attachmentReference := AttachmentReference(
+      Attachment: attachmentReference2.attachment,
+      Layout: attachmentReference2.layout,
+      AspectMask: attachmentReference2.aspectMask,
+      StencilLayout: null,
+    )
+    return attachmentReference
+}
+
 sub ref!RenderPassObject createRenderPassObjectFromInfo2(
     const VkRenderPassCreateInfo2* pCreateInfo,
     VkDevice device) {
@@ -409,35 +434,38 @@ sub ref!RenderPassObject createRenderPassObjectFromInfo2(
     inputAttachments := subpass.pInputAttachments[0:subpass.inputAttachmentCount]
     for j in (0 .. subpass.inputAttachmentCount) {
       attachment := inputAttachments[j]
-      description.InputAttachments[j] = AttachmentReference(
-        Attachment: attachment.attachment,
-        Layout: attachment.layout,
-        AspectMask: attachment.aspectMask,
-        StencilLayout: null,
-      )
+//      description.InputAttachments[j] = AttachmentReference(
+//        Attachment: attachment.attachment,
+//        Layout: attachment.layout,
+//        AspectMask: attachment.aspectMask,
+//        StencilLayout: null,
+//      )
+      description.InputAttachments[j] = createAttachmentReferenceObject(attachment)
     }
 
     colorAttachments := subpass.pColorAttachments[0:subpass.colorAttachmentCount]
     for j in (0 .. subpass.colorAttachmentCount) {
       attachment := colorAttachments[j]
-      description.ColorAttachments[j] = AttachmentReference(
-        Attachment: attachment.attachment,
-        Layout: attachment.layout,
-        AspectMask: attachment.aspectMask,
-        StencilLayout: null,
-      )
+//      description.ColorAttachments[j] = AttachmentReference(
+//        Attachment: attachment.attachment,
+//        Layout: attachment.layout,
+//        AspectMask: attachment.aspectMask,
+//        StencilLayout: null,
+//      )
+        description.ColorAttachments[j] = createAttachmentReferenceObject(attachment)
     }
 
     if subpass.pResolveAttachments != null {
       resolveAttachments := subpass.pResolveAttachments[0:subpass.colorAttachmentCount]
       for j in (0 .. subpass.colorAttachmentCount) {
         attachment := resolveAttachments[j]
-        description.ResolveAttachments[j] = AttachmentReference(
-          Attachment: attachment.attachment,
-          Layout: attachment.layout,
-          AspectMask: attachment.aspectMask,
-          StencilLayout: null,
-        )
+//        description.ResolveAttachments[j] = AttachmentReference(
+//          Attachment: attachment.attachment,
+//          Layout: attachment.layout,
+//          AspectMask: attachment.aspectMask,
+//          StencilLayout: null,
+//        )
+          description.ResolveAttachments[j] = createAttachmentReferenceObject(attachment)
       }
     }
 
