@@ -234,9 +234,19 @@ sub AttachmentDescription createAttachmentDescriptionObject(VkAttachmentDescript
 //
 //}
 
-//sub ref!SubpassDependency createSubpassDependencyObject(const VkSubpassDependency *subpassDependency) {
-//
-//}
+sub SubpassDependency createSubpassDependencyObject(VkSubpassDependency2 dependency) {
+  subpassDependency2 := SubpassDependency(
+      SrcSubpass: dependency.srcSubpass,
+      DstSubpass: dependency.dstSubpass,
+      SrcStageMask: dependency.srcStageMask,
+      DstStageMask: dependency.dstStageMask,
+      SrcAccessMask: dependency.srcAccessMask,
+      DstAccessMask: dependency.dstAccessMask,
+      DependencyFlags: dependency.dependencyFlags,
+      ViewOffset: dependency.viewOffset,
+    )
+  return subpassDependency2
+}
 
 // Returns an object
 sub AttachmentReference createAttachmentReferenceObject(VkAttachmentReference2 attachmentReference2) {
@@ -511,16 +521,7 @@ sub ref!RenderPassObject createRenderPassObjectFromInfo2(
   dependencies := info.pDependencies[0:info.dependencyCount]
   for i in (0 .. info.dependencyCount) {
     dependency := dependencies[i]
-    renderPass.SubpassDependencies[i] = SubpassDependency(
-      SrcSubpass: dependency.srcSubpass,
-      DstSubpass: dependency.dstSubpass,
-      SrcStageMask: dependency.srcStageMask,
-      DstStageMask: dependency.dstStageMask,
-      SrcAccessMask: dependency.srcAccessMask,
-      DstAccessMask: dependency.dstAccessMask,
-      DependencyFlags: dependency.dependencyFlags,
-      ViewOffset: dependency.viewOffset,
-    )
+    renderPass.SubpassDependencies[i] = createSubpassDependencyObject(dependency)
   }
 
   if info.pCorrelatedViewMasks != null {
