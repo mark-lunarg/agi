@@ -312,6 +312,25 @@ sub AttachmentReference convertAttachment(VkAttachmentReference attachment) {
   )
 }
 
+sub VkAttachmentDescription2 convertToAttachmentDescription2(VkAttachmentDescription attachment) {
+  attdesc2 := VkAttachmentDescription2(
+    sType: VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2,
+    pNext: null,
+    flags: attachment.flags,
+    format: attachment.format,
+    samples: attachment.samples,
+    loadOp: attachment.loadOp,
+    storeOp: attachment.storeOp,
+    stencilLoadOp: attachment.stencilLoadOp,
+    stencilStoreOp: attachment.stencilStoreOp,
+    initialLayout: attachment.initialLayout,
+    finalLayout: attachment.finalLayout,
+  )
+  return attdesc2
+}
+
+
+
 sub ref!RenderPassObject createRenderPassObjectFromInfo(
     const VkRenderPassCreateInfo* pCreateInfo,
     VkDevice device) {
@@ -322,16 +341,17 @@ sub ref!RenderPassObject createRenderPassObjectFromInfo(
   attachments := info.pAttachments[0:info.attachmentCount]
   for i in (0 .. info.attachmentCount) {
     attachment := attachments[i]
+    attachment2 := convertToAttachmentDescription2(attachment)
     renderPass.AttachmentDescriptions[i] = AttachmentDescription(
-      Flags: attachment.flags,
-      Format: attachment.format,
-      Samples: attachment.samples,
-      LoadOp: attachment.loadOp,
-      StoreOp: attachment.storeOp,
-      StencilLoadOp: attachment.stencilLoadOp,
-      StencilStoreOp: attachment.stencilStoreOp,
-      InitialLayout: attachment.initialLayout,
-      FinalLayout: attachment.finalLayout,
+      Flags: attachment2.flags,
+      Format: attachment2.format,
+      Samples: attachment2.samples,
+      LoadOp: attachment2.loadOp,
+      StoreOp: attachment2.storeOp,
+      StencilLoadOp: attachment2.stencilLoadOp,
+      StencilStoreOp: attachment2.stencilStoreOp,
+      InitialLayout: attachment2.initialLayout,
+      FinalLayout: attachment2.finalLayout,
       StencilLayout: null,
     )
   }
