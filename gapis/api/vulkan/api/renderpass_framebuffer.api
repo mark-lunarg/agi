@@ -342,18 +342,18 @@ sub ref!RenderPassObject createRenderPassObjectFromInfo(
   for i in (0 .. info.attachmentCount) {
     attachment := attachments[i]
     attachment2 := convertToAttachmentDescription2(attachment)
-    renderPass.AttachmentDescriptions[i] = AttachmentDescription(
-      Flags: attachment2.flags,
-      Format: attachment2.format,
-      Samples: attachment2.samples,
-      LoadOp: attachment2.loadOp,
-      StoreOp: attachment2.storeOp,
-      StencilLoadOp: attachment2.stencilLoadOp,
-      StencilStoreOp: attachment2.stencilStoreOp,
-      InitialLayout: attachment2.initialLayout,
-      FinalLayout: attachment2.finalLayout,
-      StencilLayout: null,
-    )
+    renderPass.AttachmentDescriptions[i] = createAttachmentDescriptionObject(attachment2)
+//      Flags: attachment2.flags,
+//      Format: attachment2.format,
+//      Samples: attachment2.samples,
+//      LoadOp: attachment2.loadOp,
+//      StoreOp: attachment2.storeOp,
+//      StencilLoadOp: attachment2.stencilLoadOp,
+//      StencilStoreOp: attachment2.stencilStoreOp,
+//      InitialLayout: attachment2.initialLayout,
+//      FinalLayout: attachment2.finalLayout,
+//      StencilLayout: null,
+//    )
   }
 
   subpasses := info.pSubpasses[0:info.subpassCount]
