@@ -278,9 +278,44 @@ sub AttachmentDescription createAttachmentDescriptionObjectOld(VkAttachmentDescr
     return createAttachmentDescriptionObject(attachmentDescription2)
 }
 
-//sub ref!SubpassDescription createSubpassDescriptionObject(const VkSubpassDescription *subpassDescription) {
-//
-//}
+sub SubpassDescription createSubpassDescriptionObject(VkSubpassDescription2 subpass) {
+  description := SubpassDescription(
+    Flags: subpass.flags,
+    ViewMask: subpass.viewMask,
+    PipelineBindPoint: subpass.pipelineBindPoint,
+  )
+
+  inputAttachments := subpass.pInputAttachments[0:subpass.inputAttachmentCount]
+  for j in (0 .. subpass.inputAttachmentCount) {
+    attachment := inputAttachments[j]
+    description.InputAttachments[j] = createAttachmentReferenceObject(attachment)
+  }
+
+  colorAttachments := subpass.pColorAttachments[0:subpass.colorAttachmentCount]
+  for j in (0 .. subpass.colorAttachmentCount) {
+    attachment := colorAttachments[j]
+      description.ColorAttachments[j] = createAttachmentReferenceObject(attachment)
+  }
+
+  if subpass.pResolveAttachments != null {
+    resolveAttachments := subpass.pResolveAttachments[0:subpass.colorAttachmentCount]
+    for j in (0 .. subpass.colorAttachmentCount) {
+      attachment := resolveAttachments[j]
+        description.ResolveAttachments[j] = createAttachmentReferenceObject(attachment)
+    }
+  }
+
+  if (subpass.pDepthStencilAttachment != null) {
+    attachment := subpass.pDepthStencilAttachment[0]
+    description.DepthStencilAttachment = createAttachmentReferenceObjectRef(attachment)
+  }
+
+  preserveAttachments := subpass.pPreserveAttachments[0:subpass.preserveAttachmentCount]
+  for j in (0 .. subpass.preserveAttachmentCount) {
+    description.PreserveAttachments[j] = preserveAttachments[j]
+  }
+  return description
+}
 
 sub SubpassDependency createSubpassDependencyObject(VkSubpassDependency2 dependency) {
   subpassDependency2 := SubpassDependency(
@@ -361,15 +396,6 @@ sub ref!AttachmentReference createAttachmentReferenceObjectRef(VkAttachmentRefer
     return attachmentReference
 }
 
-sub AttachmentReference convertAttachment(VkAttachmentReference attachment) {
-  return AttachmentReference(
-    Attachment: attachment.attachment,
-    Layout: attachment.layout,
-    AspectMask: 0, // This will be updated by VkRenderPassInputAttachmentAspectCreateInfo
-    StencilLayout: null,
-  )
-}
-
 sub ref!RenderPassObject createRenderPassObjectFromInfo(
     const VkRenderPassCreateInfo* pCreateInfo,
     VkDevice device) {
@@ -395,19 +421,16 @@ sub ref!RenderPassObject createRenderPassObjectFromInfo(
 
     inputAttachments := subpass.pInputAttachments[0:subpass.inputAttachmentCount]
     for j in (0 .. subpass.inputAttachmentCount) {
-      //description.InputAttachments[j] = convertAttachment(inputAttachments[j])
       description.InputAttachments[j] = createAttachmentReferenceObjectOld(inputAttachments[j])
     }
     colorAttachments := subpass.pColorAttachments[0:subpass.colorAttachmentCount]
     for j in (0 .. subpass.colorAttachmentCount) {
-      //description.ColorAttachments[j] = convertAttachment(colorAttachments[j])
       description.ColorAttachments[j] = createAttachmentReferenceObjectOld(colorAttachments[j])
     }
 
     if subpass.pResolveAttachments != null {
       resolveAttachments := subpass.pResolveAttachments[0:subpass.colorAttachmentCount]
       for j in (0 .. subpass.colorAttachmentCount) {
-        //description.ResolveAttachments[j] = convertAttachment(resolveAttachments[j])
         description.ResolveAttachments[j] = createAttachmentReferenceObjectOld(resolveAttachments[j])
       }
     }
@@ -520,43 +543,7 @@ sub ref!RenderPassObject createRenderPassObjectFromInfo2(
   read(subpasses)
   for i in (0 .. info.subpassCount) {
     subpass := subpasses[i]
-    description := SubpassDescription(
-      Flags: subpass.flags,
-      ViewMask: subpass.viewMask,
-      PipelineBindPoint: subpass.pipelineBindPoint,
-    )
-
-    inputAttachments := subpass.pInputAttachments[0:subpass.inputAttachmentCount]
-    for j in (0 .. subpass.inputAttachmentCount) {
-      attachment := inputAttachments[j]
-      description.InputAttachments[j] = createAttachmentReferenceObject(attachment)
-    }
-
-    colorAttachments := subpass.pColorAttachments[0:subpass.colorAttachmentCount]
-    for j in (0 .. subpass.colorAttachmentCount) {
-      attachment := colorAttachments[j]
-        description.ColorAttachments[j] = createAttachmentReferenceObject(attachment)
-    }
-
-    if subpass.pResolveAttachments != null {
-      resolveAttachments := subpass.pResolveAttachments[0:subpass.colorAttachmentCount]
-      for j in (0 .. subpass.colorAttachmentCount) {
-        attachment := resolveAttachments[j]
-          description.ResolveAttachments[j] = createAttachmentReferenceObject(attachment)
-      }
-    }
-
-    if (subpass.pDepthStencilAttachment != null) {
-      attachment := subpass.pDepthStencilAttachment[0]
-      description.DepthStencilAttachment = createAttachmentReferenceObjectRef(attachment)
-    }
-
-    preserveAttachments := subpass.pPreserveAttachments[0:subpass.preserveAttachmentCount]
-    for j in (0 .. subpass.preserveAttachmentCount) {
-      description.PreserveAttachments[j] = preserveAttachments[j]
-    }
-
-    renderPass.SubpassDescriptions[i] = description
+    renderPass.SubpassDescriptions[i] = createSubpassDescriptionObject(subpass)
   }
 
   dependencies := info.pDependencies[0:info.dependencyCount]
